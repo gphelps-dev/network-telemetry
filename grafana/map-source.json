@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "links": [
+        {
+          "endpoints": [
+            {
+              "name": "google.com latency",
+              "label": "Google Latency"
+            },
+            {
+              "name": "google.com packet_loss",
+              "label": "Google Packet Loss"
+            }
+          ],
+          "path": [
+            {
+              "lon": "-122.085",
+              "lat": "37.4225",
+              "name": "google"
+            },
+            {
+              "lon": "-100",
+              "lat": "40",
+              "name": "router1"
+            },
+            {
+              "lon": "-80",
+              "lat": "35",
+              "name": "router2"
+            }
+          ],
+          "name": "google.com connection"
+        },
+        {
+          "endpoints": [
+            {
+              "name": "cloudflare.com latency",
+              "label": "Cloudflare Latency"
+            },
+            {
+              "name": "cloudflare.com packet_loss",
+              "label": "Cloudflare Packet Loss"
+            }
+          ],
+          "path": [
+            {
+              "lon": "-79.3832",
+              "lat": "43.6532",
+              "name": "cloudflare"
+            },
+            {
+              "lon": "-100",
+              "lat": "40",
+              "name": "router1"
+            },
+            {
+              "lon": "-85",
+              "lat": "42",
+              "name": "router3"
+            }
+          ],
+          "name": "cloudflare.com connection"
+        },
+        {
+          "endpoints": [
+            {
+              "name": "netflix.com latency",
+              "label": "Netflix Latency"
+            },
+            {
+              "name": "netflix.com packet_loss",
+              "label": "Netflix Packet Loss"
+            }
+          ],
+          "path": [
+            {
+              "lon": "-74.0060",
+              "lat": "40.7128",
+              "name": "netflix"
+            },
+            {
+              "lon": "-100",
+              "lat": "40",
+              "name": "router1"
+            },
+            {
+              "lon": "-90",
+              "lat": "38",
+              "name": "router4"
+            }
+          ],
+          "name": "netflix.com connection"
+        }
+      ],
+      "endpoints": [
+        {
+          "lon": "-122.085",
+          "lat": "37.4225",
+          "name": "google.com",
+          "label": "Google.com"
+        },
+        {
+          "lon": "-79.3832",
+          "lat": "43.6532",
+          "name": "cloudflare.com",
+          "label": "Cloudflare.com"
+        },
+        {
+          "lon": "-74.0060",
+          "lat": "40.7128",
+          "name": "netflix.com",
+          "label": "Netflix.com"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  influxdb2:
+    image: influxdb:2.7
+    container_name: influxdb2
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin123!
+      - DOCKER_INFLUXDB_INIT_ORG=nflx
+      - DOCKER_INFLUXDB_INIT_BUCKET=default
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA==
+    volumes:
+      - influxdb2_data:/var/lib/influxdb2
+      - influxdb2_config:/etc/influxdb2
+    networks:
+      - telemetry_network
+
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123!
+      - GF_AUTH_GITHUB_ENABLED=true
+      - GF_AUTH_GITHUB_CLIENT_ID=Ov23ligp98VkPX9enwe2
+      - GF_AUTH_GITHUB_CLIENT_SECRET=60306d22a469ad570ed4ab69db3c5c615bac5fb7
+      - GF_AUTH_GITHUB_SCOPES=user
+      - GF_AUTH_GITHUB_ALLOW_SIGN_UP=true
+      - GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS=
+      - GF_AUTH_GITHUB_TEAM_IDS=
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - telemetry_network
+    depends_on:
+      - influxdb2
+
+  telemetry:
+    build: ./telemetry
+    container_name: telemetry
+    environment:
+      - INFLUX_URL=http://influxdb2:8086
+      - INFLUX_TOKEN=SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA==
+      - INFLUX_BUCKET=default
+      - INFLUX_ORG=nflx
+      - DESTINATIONS=google.com,github.com,stackoverflow.com
+      - COLLECT_INTERVAL=60
+    networks:
+      - telemetry_network
+    depends_on:
+      - influxdb2
+
+volumes:
+  influxdb2_data:
+  influxdb2_config:
+  grafana_data:
+
+networks:
+  telemetry_network:
+    driver: bridge

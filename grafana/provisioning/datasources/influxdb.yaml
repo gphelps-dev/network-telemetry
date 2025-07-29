@@ -1,0 +1,14 @@
+apiVersion: 1
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    uid: DS_INFLUXDB
+    url: http://influxdb2:8086
+    isDefault: true
+    jsonData:
+      version: Flux
+      organization: nflx
+      defaultBucket: default
+    secureJsonData:
+      token: SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA==
