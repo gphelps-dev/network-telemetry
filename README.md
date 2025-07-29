@@ -1,43 +1,17 @@
-# Netflix Network Telemetry Dashboard
+# Network Telemetry Dashboard
 
-A real-time network telemetry monitoring system that collects latency, packet loss, and hop count data from multiple destinations and displays it in a beautiful Grafana dashboard.
+A production-ready network monitoring solution that captures latency, packet loss, and hop count metrics to help diagnose network issues between your location and target FQDNs.
 
 ## Features
 
-- **Real-time Network Monitoring**: Continuously monitors network performance to multiple destinations
-- **Comprehensive Metrics**: Tracks latency, packet loss, hop count, and success rates
-- **Beautiful Dashboard**: Grafana-based visualization with interactive charts and maps
+- **Network Diagnostics**: Monitor latency, packet loss, and hop count to any FQDN
+- **Configurable Destinations**: Support teams can easily modify target destinations via environment variables
+- **Production-Ready**: Clean, organized dashboard with essential metrics only
 - **Docker-based**: Easy deployment with Docker Compose
 - **Time-series Database**: InfluxDB for efficient data storage and querying
-- **Geographic Visualization**: Network path mapping with geographic coordinates
+- **Secure Configuration**: Environment-based secrets management
 
-## Dashboard Features
-
-- **Latency Monitoring**: Real-time latency measurements in milliseconds
-- **Packet Loss Tracking**: Percentage of packet loss for each destination
-- **Hop Count Analysis**: Number of network hops to reach destinations
-- **Success Rate Monitoring**: Connection success/failure rates
-- **Geographic Map**: Visual representation of network paths
-- **Auto-refresh**: Dashboard updates every 30 seconds
-
-## Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Telemetry     │    │   InfluxDB      │    │   Grafana       │
-│   Container     │───▶│   Time-series   │───▶│   Dashboard     │
-│   (Data         │    │   Database      │    │   Visualization │
-│   Collection)   │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-## Prerequisites
-
-- Docker and Docker Compose
-- Internet connectivity for network testing
-- At least 2GB of available RAM
-
-## Installation
+## Quick Start
 
 1. **Clone the repository**:
    ```bash
@@ -45,200 +19,286 @@ A real-time network telemetry monitoring system that collects latency, packet lo
    cd netflix-network-telemetry
    ```
 
-2. **Start the services**:
+2. **Set up environment variables**:
+   ```bash
+   # Copy the example environment file
+   cp env.example .env
+   
+   # Edit .env with your secure values
+   nano .env
+   ```
+
+3. **Start the services**:
    ```bash
    docker compose up -d
    ```
 
-3. **Access the dashboard**:
+4. **Access the dashboard**:
    - **Grafana Dashboard**: http://localhost:3000
-   - **Username**: admin
-   - **Password**: admin123!
+   - **Authentication**: Admin login (admin/admin123!) or GitHub OAuth
+   - **Network Telemetry Dashboard**: http://localhost:3000/d/network-telemetry/network-telemetry-dashboard
+   - **Network Telemetry Dashboard (Built-in Geomap)**: http://localhost:3000/d/network-telemetry-geomap/network-telemetry-dashboard-built-in-geomap
+   - **Network Telemetry Dashboard with Routes**: http://localhost:3000/d/network-telemetry-routes/network-telemetry-dashboard-with-routes
+   - **Network Telemetry Dashboard with Flow-Styled Routes**: http://localhost:3000/d/network-telemetry-flow-routes/network-telemetry-dashboard-with-flow-styled-routes
 
-## Configuration
+## Measurement Location
+
+This system measures network performance **from your local machine** (where Docker is running) to the configured destinations. The telemetry container runs on your local system and performs:
+
+- **Ping measurements** from your location to target FQDNs
+- **Traceroute analysis** to determine network hops from your location
+- **Real-time monitoring** of network conditions from your network
+
+**Current measurement destinations:**
+- google.com
+- github.com
+- stackoverflow.com
+- cloudflare.com
+- netflix.com
+
+You can modify these destinations by editing the `NETWORK_DESTINATIONS` environment variable in your `.env` file.
+
+## Network Diagnostics Configuration
+
+### For Support Teams
+
+This system is designed to help diagnose network issues between your location and any FQDN. Support teams can easily modify the target destinations:
+
+#### 1. **Configure Destinations**
+
+Edit the `.env` file and modify the `NETWORK_DESTINATIONS` variable:
+
+```bash
+# Example: Monitor specific services for troubleshooting
+NETWORK_DESTINATIONS=api.company.com,cdn.company.com,database.company.com
+
+# Example: Monitor external dependencies
+NETWORK_DESTINATIONS=aws.amazon.com,cloudflare.com,github.com
+
+# Example: Monitor single destination for focused debugging
+NETWORK_DESTINATIONS=problematic-service.company.com
+```
+
+#### 2. **Deploy and Monitor**
+
+```bash
+# Restart services with new configuration
+docker compose down
+docker compose up -d
+
+# Check telemetry logs
+docker compose logs telemetry
+```
+
+#### 3. **Analyze Network Issues**
+
+The dashboard will show:
+- **Latency trends** - Identify performance degradation
+- **Packet loss** - Detect network instability
+- **Hop count changes** - Identify routing changes
+- **Connection success rate** - Monitor reliability
 
 ### Environment Variables
 
-The telemetry service can be configured using environment variables:
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `NETWORK_DESTINATIONS` | Comma-separated FQDNs to monitor | `google.com,github.com,stackoverflow.com` | No |
+| `TELEMETRY_COLLECT_INTERVAL` | Collection interval in seconds | `60` | No |
+| `INFLUXDB_TOKEN` | InfluxDB authentication token | - | Yes |
+| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | - | Yes |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret | - | Yes |
+
+## Environment Setup
+
+### Security Configuration
+
+This project uses environment variables for secure configuration. The `.env` file contains sensitive information and is excluded from version control.
+
+**Required Environment Variables:**
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `INFLUXDB_TOKEN` | InfluxDB authentication token | Yes |
+| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | Yes |
+| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret | Yes |
+
+**Optional Environment Variables:**
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DESTINATIONS` | `google.com,github.com,stackoverflow.com` | Comma-separated list of destinations to monitor |
-| `COLLECT_INTERVAL` | `60` | Interval between measurements in seconds |
-| `INFLUX_URL` | `http://influxdb2:8086` | InfluxDB connection URL |
-| `INFLUX_TOKEN` | (auto-generated) | InfluxDB authentication token |
-| `INFLUX_BUCKET` | `default` | InfluxDB bucket name |
-| `INFLUX_ORG` | `nflx` | InfluxDB organization name |
+| `NETWORK_DESTINATIONS` | google.com,github.com,stackoverflow.com | FQDNs to monitor for network diagnostics |
+| `TELEMETRY_COLLECT_INTERVAL` | 60 | Collection interval in seconds |
+| `INFLUXDB_ADMIN_USER` | admin | InfluxDB admin username |
+| `INFLUXDB_ADMIN_PASSWORD` | admin123! | InfluxDB admin password |
+| `GITHUB_OAUTH_ENABLED` | true | Enable GitHub OAuth |
+| `GITHUB_SCOPES` | user | GitHub OAuth scopes |
+| `GITHUB_ALLOW_SIGN_UP` | true | Allow new user sign-ups |
+| `GITHUB_ALLOWED_ORGANIZATIONS` | | Restrict to specific GitHub organizations |
+| `GITHUB_TEAM_IDS` | | Restrict to specific GitHub teams |
 
-### Customizing Destinations
+### Setting Up GitHub OAuth
 
-To monitor different destinations, modify the `DESTINATIONS` environment variable in `docker-compose.yml`:
+1. Create a GitHub OAuth App (see `GITHUB_OAUTH_SETUP.md`)
+2. Add your GitHub credentials to `.env`:
+   ```bash
+   GITHUB_CLIENT_ID=your_client_id
+   GITHUB_CLIENT_SECRET=your_client_secret
+   ```
 
-```yaml
-environment:
-  - DESTINATIONS=google.com,github.com,stackoverflow.com
-```
+### Generating InfluxDB Token
 
-## Testing
-
-### Running Unit Tests
-
-```bash
-python test_telemetry.py
-```
-
-### Running Integration Tests
+The InfluxDB token is automatically generated on first run. You can also generate one manually:
 
 ```bash
-python test_telemetry.py TestIntegration
+# Access the InfluxDB container
+docker exec -it influxdb2 influx
+
+# Generate a token
+influx auth create --org nflx --token-description "telemetry-token"
 ```
 
-### Test Coverage
+### Authentication
 
-The test suite covers:
-- Ping functionality and output parsing
-- Traceroute functionality and hop counting
-- InfluxDB data writing
-- Error handling and edge cases
-- Dependency checking
-- Network connectivity (integration tests)
+This Grafana instance supports both **admin login** and **GitHub OAuth**:
 
-## Dashboard Metrics
+- **Admin Login**: Username `admin`, Password `admin123!`
+- **GitHub OAuth**: Configured for team authentication (if GitHub credentials are provided)
 
-### Latency Panel
-- **Unit**: Milliseconds (ms)
-- **Thresholds**: 
-  - Green: < 50ms
-  - Yellow: 50-100ms
-  - Red: > 100ms
+You can use either method to access the dashboard.
 
-### Packet Loss Panel
-- **Unit**: Percentage (%)
-- **Thresholds**:
-  - Green: < 1%
-  - Yellow: 1-5%
-  - Red: > 5%
+### Configuring Grafana Datasource
 
-### Hop Count Panel
-- **Unit**: Number of hops
-- **Description**: Network path complexity
+The InfluxDB datasource is automatically configured. If you need to manually configure it:
 
-### Success Rate Panel
-- **Unit**: Percentage (%)
-- **Description**: Connection success rate over time
+1. Go to Grafana → Configuration → Data Sources
+2. Add InfluxDB datasource
+3. Use the token from your `.env` file
 
-### Network Path Map
-- **Features**: Geographic visualization of network paths
-- **Data**: Real-time location data for each destination
+## Dashboard Features
+
+### Network Metrics
+
+- **Latency Monitoring**: Real-time latency measurements to each destination
+- **Packet Loss Tracking**: Monitor network stability and quality
+- **Hop Count Analysis**: Track routing changes and network topology
+- **Connection Success Rate**: Monitor reliability with gauge visualization
+
+### Diagnostic Capabilities
+
+- **Trend Analysis**: Identify performance degradation over time
+- **Comparative Monitoring**: Compare performance across multiple destinations
+- **Alerting**: Set up alerts for latency spikes or packet loss
+- **Historical Data**: Access historical network performance data
+- **Current Status Table**: Real-time overview of all destinations
+
+### Network Map Visualization
+
+The system includes modern network visualization dashboards using [Grafana's built-in Geomap visualization](https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/geomap/):
+
+- **Geographic Network Map**: Visual representation of network destinations with real-time metrics
+- **Interactive Markers**: Click on destinations to view detailed telemetry data
+- **Dynamic Styling**: Color-coded markers based on latency and packet loss thresholds
+- **Real-time Updates**: Live updates of network status and performance metrics every 5 seconds
+- **Modern UI**: Clean, responsive interface using built-in Grafana geomap technology
+
+#### Geomap Features Implemented:
+
+- **Markers Layer**: Orange circle markers showing network destinations
+- **Text Layer**: Hop count labels displayed above each destination
+- **Tooltip Details**: Hover to see latency, packet loss, and hop count
+- **Auto Location**: Automatically detects latitude/longitude from data fields
+- **Map Controls**: Zoom, pan, and scale controls enabled
+- **Dark Theme**: Optimized for dark dashboard theme
+
+#### Supported Data Format:
+The geomap uses latitude/longitude coordinates with the following fields:
+- `lat`: Latitude coordinates (hardcoded for each destination)
+- `lon`: Longitude coordinates (hardcoded for each destination)
+- `destination`: Hostname being monitored
+- `latency`: Ping latency in milliseconds
+- `packet_loss`: Packet loss percentage
+- `hop_count`: Number of network hops
+
+The system provides map-based dashboards:
+- **Network Telemetry Geomap Dashboard** (`network-telemetry-geomap.json`): Uses built-in geomap panel with hop information
+- **Network Telemetry Dashboard with Routes** (`network-telemetry-with-routes.json`): Includes [route layers](https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/geomap/#route-layer-beta) showing network paths
+- **Network Telemetry Dashboard with Flow-Styled Routes** (`network-telemetry-with-routes-enhanced.json`): Advanced route visualization with [flow-based styling](https://viglino.github.io/ol-ext/examples/style/map.style.flowline.html) - color varies by latency, width by packet loss
+
+These dashboards provide improved visual experiences with better performance compared to external map plugins.
 
 ## Troubleshooting
 
-### Dashboard is Blank
+### Common Issues
 
-1. **Check if services are running**:
-   ```bash
-   docker compose ps
-   ```
+1. **No data appearing**: Check that `INFLUXDB_TOKEN` is set correctly
+2. **Authentication issues**: Verify GitHub OAuth credentials
+3. **Network connectivity**: Ensure containers can reach the internet
+4. **Destination unreachable**: Verify FQDNs are accessible from your network
 
-2. **Check telemetry logs**:
-   ```bash
-   docker compose logs telemetry
-   ```
+### Support Team Usage
 
-3. **Verify InfluxDB data**:
-   ```bash
-   curl -s -H "Authorization: Token YOUR_TOKEN" \
-        "http://localhost:8086/api/v2/query?org=nflx" \
-        -d "from(bucket: \"default\") |> range(start: -1h) |> limit(n: 5)"
-   ```
+For network diagnostics:
 
-### No Data Being Collected
+1. **Identify the problematic FQDN**
+2. **Add it to `NETWORK_DESTINATIONS`** in `.env`
+3. **Restart services**: `docker compose restart telemetry`
+4. **Monitor the dashboard** for latency, packet loss, and hop count
+5. **Analyze trends** to identify root cause
 
-1. **Check network connectivity**:
-   ```bash
-   docker exec telemetry ping -c 1 google.com
-   ```
+### Logs and Debugging
 
-2. **Verify environment variables**:
-   ```bash
-   docker exec telemetry env | grep INFLUX
-   ```
+```bash
+# View telemetry logs
+docker compose logs telemetry
 
-3. **Check InfluxDB connection**:
-   ```bash
-   curl -s "http://localhost:8086/health"
-   ```
+# Check InfluxDB data
+docker exec influxdb2 influx query --org nflx --token YOUR_TOKEN 'from(bucket: "default") |> range(start: -1h)'
 
-### High Latency or Packet Loss
-
-- This is normal behavior and indicates actual network conditions
-- The dashboard will show these metrics accurately
-- Consider adding more destinations to compare performance
+# Test individual destination
+docker compose exec telemetry ping -c 4 your-destination.com
+```
 
 ## Development
 
-### Project Structure
-
-```
-netflix-network-telemetry/
-├── docker-compose.yml          # Service orchestration
-├── telemetry/                  # Telemetry service
-│   ├── Dockerfile             # Container definition
-│   ├── main.py               # Main telemetry script
-│   ├── run_telemetry.sh      # Shell script wrapper
-│   └── requirements.txt      # Python dependencies
-├── grafana/                   # Grafana configuration
-│   ├── dashboards/           # Dashboard definitions
-│   └── provisioning/         # Auto-provisioning config
-├── influxdb2_data/           # InfluxDB data persistence
-├── test_telemetry.py         # Unit and integration tests
-└── README.md                 # This file
-```
-
 ### Adding New Metrics
 
-1. **Modify the telemetry script** (`telemetry/main.py`)
-2. **Update the dashboard** (`grafana/dashboards/network-telemetry.json`)
-3. **Add tests** (`test_telemetry.py`)
-4. **Rebuild and restart**:
-   ```bash
-   docker compose build telemetry
-   docker compose up -d telemetry
-   ```
+To add new network metrics:
 
-### Contributing
+1. Modify `telemetry/main.py` to collect additional data
+2. Update the InfluxDB write function to store new fields
+3. Add corresponding panels to the Grafana dashboard
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+### Custom Destinations
 
-## Performance Considerations
+To monitor custom destinations:
 
-- **Data Retention**: InfluxDB automatically manages data retention
-- **Resource Usage**: 
-  - Telemetry: ~50MB RAM
-  - InfluxDB: ~200MB RAM
-  - Grafana: ~100MB RAM
-- **Network Impact**: Minimal - only ping and traceroute commands
-- **Storage**: ~10MB/day for typical usage
+1. Edit `NETWORK_DESTINATIONS` in `.env`
+2. Restart the telemetry service
+3. Verify data collection in Grafana
 
-## Security
+## Production Deployment
 
-- **Default Credentials**: Change default passwords in production
-- **Network Access**: Services are bound to localhost by default
-- **Token Management**: InfluxDB tokens are auto-generated
-- **Container Security**: Running as non-root user
+### Security Considerations
+
+- **Change default passwords** in production environments
+- **Use strong InfluxDB tokens** for authentication
+- **Restrict network access** to necessary ports only
+- **Monitor container logs** for security events
+
+### Performance Optimization
+
+- **Data retention**: Configure InfluxDB retention policies
+- **Resource limits**: Set appropriate Docker resource limits
+- **Monitoring**: Add container health checks
+- **Backup**: Implement regular data backups
+
+### Scaling
+
+- **Multiple destinations**: Add more FQDNs to monitor
+- **Collection frequency**: Adjust `TELEMETRY_COLLECT_INTERVAL`
+- **Storage**: Increase InfluxDB storage capacity
+- **High availability**: Deploy with multiple instances
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For issues and questions:
-1. Check the troubleshooting section
-2. Review the logs: `docker compose logs`
-3. Run the test suite: `python test_telemetry.py`
-4. Open an issue on GitHub 
+This project is licensed under the MIT License. 

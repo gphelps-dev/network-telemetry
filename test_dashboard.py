@@ -6,10 +6,11 @@ Test script to verify dashboard queries are working
 
 import requests
 import json
+import os
 
 # InfluxDB configuration
 INFLUX_URL = "http://localhost:8086"
-INFLUX_TOKEN = "SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA=="
+INFLUX_TOKEN = os.getenv('INFLUXDB_TOKEN', 'SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA==')
 INFLUX_ORG = "nflx"
 
 def test_query(query_name, flux_query):

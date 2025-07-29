@@ -7,12 +7,11 @@ services:
     ports:
       - "8086:8086"
     environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_USERNAME=admin
       - DOCKER_INFLUXDB_INIT_PASSWORD=admin123!
-      - DOCKER_INFLUXDB_INIT_ORG=nflx
-      - DOCKER_INFLUXDB_INIT_BUCKET=default
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA==
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-nflx}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-default}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
     volumes:
       - influxdb2_data:/var/lib/influxdb2
       - influxdb2_config:/etc/influxdb2
@@ -20,20 +19,23 @@ services:
       - telemetry_network
 
   grafana:
-    image: grafana/grafana:10.0.0
+    image: grafana/grafana:12.1.0
     container_name: grafana
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin123!
-      - GF_AUTH_GITHUB_ENABLED=true
-      - GF_AUTH_GITHUB_CLIENT_ID=Ov23ligp98VkPX9enwe2
-      - GF_AUTH_GITHUB_CLIENT_SECRET=60306d22a469ad570ed4ab69db3c5c615bac5fb7
-      - GF_AUTH_GITHUB_SCOPES=user
-      - GF_AUTH_GITHUB_ALLOW_SIGN_UP=true
-      - GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS=
-      - GF_AUTH_GITHUB_TEAM_IDS=
+      # Enable admin login with default credentials
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123!}
+      # Keep GitHub OAuth as additional option
+      - GF_AUTH_GITHUB_ENABLED=${GITHUB_OAUTH_ENABLED:-true}
+      - GF_AUTH_GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GF_AUTH_GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GF_AUTH_GITHUB_SCOPES=${GITHUB_SCOPES:-user}
+      - GF_AUTH_GITHUB_ALLOW_SIGN_UP=${GITHUB_ALLOW_SIGN_UP:-true}
+      - GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS=${GITHUB_ALLOWED_ORGANIZATIONS:-}
+      - GF_AUTH_GITHUB_TEAM_IDS=${GITHUB_TEAM_IDS:-}
+      # Note: MapGL plugin not available, using built-in geomap instead
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
@@ -48,15 +50,15 @@ services:
     container_name: telemetry
     environment:
       - INFLUX_URL=http://influxdb2:8086
-      - INFLUX_TOKEN=SlhPxmQPGdRbxnVO5onZOJwqiuf8_9pqdIJPuNpUFKRiPBRlDHyOdMqJEaKNuK1CEFSWH9It0FtYM619I8pIlA==
-      - INFLUX_BUCKET=default
-      - INFLUX_ORG=nflx
-      - DESTINATIONS=google.com,github.com,stackoverflow.com
-      - COLLECT_INTERVAL=60
-    networks:
-      - telemetry_network
+      - INFLUX_TOKEN=${INFLUXDB_TOKEN}
+      - INFLUX_BUCKET=${INFLUXDB_BUCKET:-default}
+      - INFLUX_ORG=${INFLUXDB_ORG:-nflx}
+      - DESTINATIONS=${NETWORK_DESTINATIONS:-google.com,github.com,stackoverflow.com}
+      - COLLECT_INTERVAL=${TELEMETRY_COLLECT_INTERVAL:-60}
     depends_on:
       - influxdb2
+    networks:
+      - telemetry_network
 
 volumes:
   influxdb2_data:
