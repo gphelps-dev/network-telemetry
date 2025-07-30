@@ -101,9 +101,7 @@ The collected metrics are automatically integrated into Grafana dashboards:
    - **Grafana Dashboard**: http://localhost:3000
    - **Authentication**: Admin login (admin/admin123!) or GitHub OAuth
    - **Network Telemetry Dashboard**: http://localhost:3000/d/network-telemetry/network-telemetry-dashboard
-   - **Network Telemetry Dashboard (Built-in Geomap)**: http://localhost:3000/d/network-telemetry-geomap/network-telemetry-dashboard-built-in-geomap
-   - **Network Telemetry Dashboard with Routes**: http://localhost:3000/d/network-telemetry-routes/network-telemetry-dashboard-with-routes
-   - **Network Telemetry Dashboard with Flow-Styled Routes**: http://localhost:3000/d/network-telemetry-flow-routes/network-telemetry-dashboard-with-flow-styled-routes
+   - **Network Telemetry Geomap Dashboard**: http://localhost:3000/d/network-telemetry-geomap/network-telemetry-dashboard-built-in-geomap
 
 ## Measurement Location
 
@@ -301,11 +299,9 @@ The geomap uses latitude/longitude coordinates with the following fields:
 - `hop_count`: Number of network hops
 
 The system provides map-based dashboards:
-- **Network Telemetry Geomap Dashboard** (`network-telemetry-geomap.json`): Uses built-in geomap panel with hop information
-- **Network Telemetry Dashboard with Routes** (`network-telemetry-with-routes.json`): Includes [route layers](https://grafana.com/docs/grafana/latest/panels-visualizations/visualizations/geomap/#route-layer-beta) showing network paths
-- **Network Telemetry Dashboard with Flow-Styled Routes** (`network-telemetry-with-routes-enhanced.json`): Advanced route visualization with [flow-based styling](https://viglino.github.io/ol-ext/examples/style/map.style.flowline.html) - color varies by latency, width by packet loss
+- **Network Telemetry Geomap Dashboard** (`network-telemetry-geomap.json`): Uses built-in geomap panel with hop information and geographic visualization
 
-These dashboards provide improved visual experiences with better performance compared to external map plugins.
+This dashboard provides improved visual experiences with better performance compared to external map plugins.
 
 ## Troubleshooting
 
@@ -380,6 +376,4 @@ To monitor custom destinations:
 - **Storage**: Increase InfluxDB storage capacity
 - **High availability**: Deploy with multiple instances
 
-## License
-
-This project is licensed under the MIT License. 
+ 
