@@ -11,6 +11,70 @@ A production-ready network monitoring solution that captures latency, packet los
 - **Time-series Database**: InfluxDB for efficient data storage and querying
 - **Secure Configuration**: Environment-based secrets management
 
+## Network Telemetry Operations
+
+### Ping Diagnostics
+The system performs ping operations to measure network connectivity and performance:
+
+- **Latency Measurement**: Sends 4 ICMP echo requests and calculates average round-trip time (RTT)
+- **Packet Loss Detection**: Tracks percentage of packets lost during ping sequence
+- **Cross-Platform Support**: Handles both Linux and macOS ping output formats
+- **Timeout Handling**: 5-second timeout per ping to prevent hanging
+
+**Example ping output parsing:**
+```
+PING google.com (142.250.191.78): 56 data bytes
+64 bytes from 142.250.191.78: icmp_seq=0 time=23.251 ms
+64 bytes from 142.250.191.78: icmp_seq=1 time=22.266 ms
+64 bytes from 142.250.191.78: icmp_seq=2 time=21.558 ms
+64 bytes from 142.250.191.78: icmp_seq=3 time=24.735 ms
+
+--- google.com ping statistics ---
+4 packets transmitted, 4 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 21.558/22.952/24.735/1.234 ms
+```
+
+### Traceroute Analysis
+The system performs traceroute operations to map network path topology:
+
+- **Hop Count**: Counts the number of network hops between source and destination
+- **Path Discovery**: Identifies each router/switch in the network path
+- **Timeout Configuration**: 3-second timeout per hop to prevent delays
+- **IP Resolution**: Uses `-n` flag for faster execution (no DNS lookups)
+
+**Example traceroute output parsing:**
+```
+traceroute to google.com (142.250.191.78), 64 hops max, 52 byte packets
+ 1  192.168.1.1  2.123 ms  1.987 ms  1.856 ms
+ 2  10.0.0.1  5.234 ms  4.987 ms  5.123 ms
+ 3  172.16.0.1  8.456 ms  8.234 ms  8.567 ms
+ 4  142.250.191.78  22.952 ms  22.266 ms  21.558 ms
+```
+
+### Data Collection Process
+1. **Round-robin Scheduling**: Cycles through configured destinations every 60 seconds
+2. **Parallel Operations**: Runs ping and traceroute for each destination
+3. **Data Validation**: Ensures metrics are within reasonable ranges before storage
+4. **Error Handling**: Gracefully handles network failures and timeouts
+5. **InfluxDB Storage**: Writes validated metrics with timestamps for time-series analysis
+
+### Dashboard Integration
+
+The collected metrics are automatically integrated into Grafana dashboards:
+
+**Network Telemetry Dashboard**:
+- **Time Series Graphs**: Show latency, packet loss, and hop count trends over time
+- **Real-time Tables**: Display current metrics for all destinations
+- **Success Rate Gauge**: Visual indicator of connection reliability
+
+**Network Telemetry Geomap Dashboard**:
+- **Geographic Visualization**: Map showing destination locations with orange markers
+- **Hop Count Labels**: Three dots with hop information (e.g., "...8 hops")
+- **Dynamic Styling**: Markers sized and colored based on performance metrics
+- **Interactive Tooltips**: Click markers for detailed telemetry data
+
+**Data Flow**: Telemetry → InfluxDB → Grafana → Real-time Dashboards
+
 ## Quick Start
 
 1. **Clone the repository**:
@@ -182,6 +246,23 @@ The InfluxDB datasource is automatically configured. If you need to manually con
 - **Packet Loss Tracking**: Monitor network stability and quality
 - **Hop Count Analysis**: Track routing changes and network topology
 - **Connection Success Rate**: Monitor reliability with gauge visualization
+
+### Metric Definitions
+
+**Latency (ms)**: Round-trip time for ICMP echo requests
+- **Good**: < 50ms
+- **Warning**: 50-100ms  
+- **Poor**: > 100ms
+
+**Packet Loss (%)**: Percentage of packets lost during ping sequence
+- **Good**: 0-1%
+- **Warning**: 1-5%
+- **Poor**: > 5%
+
+**Hop Count**: Number of network devices between source and destination
+- **Typical**: 8-15 hops for internet destinations
+- **High**: > 20 hops may indicate routing issues
+- **Low**: < 5 hops for local/regional destinations
 
 ### Diagnostic Capabilities
 
